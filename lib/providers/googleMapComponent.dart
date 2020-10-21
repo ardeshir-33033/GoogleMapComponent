@@ -5,7 +5,7 @@ import 'package:flutter_app/models/MarkerModel.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
-import 'MarkerModel.dart';
+import '../models/MarkerModel.dart';
 import 'package:geocoder/geocoder.dart';
 
 class googleMapComponent extends StatefulWidget {
@@ -99,10 +99,10 @@ class _googleMapComponentState extends State<googleMapComponent> {
   }
 
   void deleteMarker() {
-    setState(() {
-      markers.clear();
-    });
+    markers.clear();
     markerList.clear();
+
+    setState(() {});
   }
 
   Widget locationOn() {
