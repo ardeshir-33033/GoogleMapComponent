@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/MarkerModel.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -63,16 +65,13 @@ class _googleMapComponentState extends State<googleMapComponent> {
   StreamSubscription locationSubscription;
   LatLng lastMapPosition = LatLng(45.521563, -122.677433);
 
+  ////when the button pressed adding marker on map
   void _onAddMarkerButtonPressed() {
     if (origin == null) {
       origin = lastMapPosition;
     } else {
       target = lastMapPosition;
     }
-//
-//    final coordinates =  Coordinates(lastMapPosition.latitude , lastMapPosition.longitude);
-//    var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
-//    var first = addresses.first;
 
     setState(() {
       markers.add(Marker(
@@ -89,22 +88,32 @@ class _googleMapComponentState extends State<googleMapComponent> {
           'https://cdn.jpegmini.com/user/images/slider_puffin_before_mobile.jpg',
     ));
   }
+  ////
 
+
+ //// when camera moves around this will change position
   void onCameraMove(CameraPosition position) {
     lastMapPosition = position.target;
   }
+  ////
 
+  ////this needs to be done a controller must be added to map
   void onMapCreated(GoogleMapController _controller) {
     controller = _controller;
   }
+  //////
 
+  /////deleting the whole marker package
   void deleteMarker() {
     markers.clear();
     markerList.clear();
 
     setState(() {});
   }
+  ////
 
+
+  ////changes marker icon for origin or for target
   Widget locationOn() {
     if (origin == null) {
       return Icon(
@@ -119,7 +128,9 @@ class _googleMapComponentState extends State<googleMapComponent> {
         size: 55.0,
       );
   }
+  /////
 
+  ////current location
   void getCurrentLocation() async {
     try {
 //      Uint8List imageData = await getMarker();
@@ -153,6 +164,7 @@ class _googleMapComponentState extends State<googleMapComponent> {
       }
     }
   }
+  ////
 
   @override
   void dispose() {
@@ -163,6 +175,8 @@ class _googleMapComponentState extends State<googleMapComponent> {
     super.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -171,11 +185,25 @@ class _googleMapComponentState extends State<googleMapComponent> {
       child: Stack(
         children: <Widget>[
           GoogleMap(
+
+            /////secret way to make map possible to move when it is under single child scroll view
+            gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+              new Factory<OneSequenceGestureRecognizer>(
+                    () => new EagerGestureRecognizer(),
+              ),
+            ].toSet(),
+            ////
+
+
             onMapCreated: onMapCreated,
+
+            ////first ccamera position
             initialCameraPosition: CameraPosition(
-              target: widget.center ?? LatLng(35.0, 51.0),
+              target: widget.center ?? LatLng(35.728954, 51.388721),
               zoom: 11.0,
             ),
+            ////
+
             minMaxZoomPreference:
                 MinMaxZoomPreference(widget.minZoom ?? 5, widget.maxZoom ?? 20),
             rotateGesturesEnabled: widget.mapRotate ?? false,
@@ -208,6 +236,7 @@ class _googleMapComponentState extends State<googleMapComponent> {
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 35.0),
+                  ////add marker button
                   FloatingActionButton(
                     onPressed: () {
                       _onAddMarkerButtonPressed();
@@ -216,9 +245,12 @@ class _googleMapComponentState extends State<googleMapComponent> {
                     backgroundColor: Colors.green,
                     child: const Icon(Icons.add_location, size: 36.0),
                   ),
+                  ////
                   SizedBox(
                     height: 16.0,
                   ),
+
+                  ////delete button for markers
                   FloatingActionButton(
                     onPressed: () {
                       deleteMarker();
@@ -230,6 +262,8 @@ class _googleMapComponentState extends State<googleMapComponent> {
                   SizedBox(
                     height: 16.0,
                   ),
+
+                  ////my location button
                   Visibility(
                     visible: widget.myLocation ?? false,
                     maintainState: true,
@@ -241,24 +275,25 @@ class _googleMapComponentState extends State<googleMapComponent> {
                           getCurrentLocation();
                         }),
                   ),
+                  ////
                 ],
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Container(
-                margin: EdgeInsets.symmetric(vertical: 20.0),
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: markerList.length,
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  itemBuilder: (BuildContext, int index) {
-                    return _boxes(index);
-                  },
-                )),
-          ),
+          // Align(
+          //   alignment: Alignment.bottomLeft,
+          //   child: Container(
+          //       margin: EdgeInsets.symmetric(vertical: 20.0),
+          //       height: 100,
+          //       child: ListView.builder(
+          //         scrollDirection: Axis.horizontal,
+          //         itemCount: markerList.length,
+          //         padding: EdgeInsets.symmetric(horizontal: 20),
+          //         itemBuilder: (BuildContext, int index) {
+          //           return _boxes(index);
+          //         },
+          //       )),
+          // ),
         ],
       ),
     );
