@@ -7,7 +7,6 @@ import 'package:flutter_app/models/MarkerModel.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
-import '../models/MarkerModel.dart';
 import 'package:geocoder/geocoder.dart';
 
 class googleMapComponent extends StatefulWidget {
@@ -65,13 +64,16 @@ class _googleMapComponentState extends State<googleMapComponent> {
   StreamSubscription locationSubscription;
   LatLng lastMapPosition = LatLng(45.521563, -122.677433);
 
-  ////when the button pressed adding marker on map
   void _onAddMarkerButtonPressed() {
     if (origin == null) {
       origin = lastMapPosition;
     } else {
       target = lastMapPosition;
     }
+//
+//    final coordinates =  Coordinates(lastMapPosition.latitude , lastMapPosition.longitude);
+//    var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+//    var first = addresses.first;
 
     setState(() {
       markers.add(Marker(
@@ -85,35 +87,25 @@ class _googleMapComponentState extends State<googleMapComponent> {
       name: DateTime.now().microsecondsSinceEpoch.toString(),
       place: lastMapPosition,
       url:
-          'https://cdn.jpegmini.com/user/images/slider_puffin_before_mobile.jpg',
+      'https://cdn.jpegmini.com/user/images/slider_puffin_before_mobile.jpg',
     ));
   }
-  ////
 
-
- //// when camera moves around this will change position
   void onCameraMove(CameraPosition position) {
     lastMapPosition = position.target;
   }
-  ////
 
-  ////this needs to be done a controller must be added to map
   void onMapCreated(GoogleMapController _controller) {
     controller = _controller;
   }
-  //////
 
-  /////deleting the whole marker package
   void deleteMarker() {
     markers.clear();
     markerList.clear();
 
     setState(() {});
   }
-  ////
 
-
-  ////changes marker icon for origin or for target
   Widget locationOn() {
     if (origin == null) {
       return Icon(
@@ -128,9 +120,7 @@ class _googleMapComponentState extends State<googleMapComponent> {
         size: 55.0,
       );
   }
-  /////
 
-  ////current location
   void getCurrentLocation() async {
     try {
 //      Uint8List imageData = await getMarker();
@@ -144,27 +134,26 @@ class _googleMapComponentState extends State<googleMapComponent> {
 
       locationSubscription =
           locationTracker.onLocationChanged().listen((newLocalData) {
-        if (widget.OnMyLocationCallback != null) {
-          widget.OnMyLocationCallback(
-              LatLng(newLocalData.latitude, newLocalData.longitude));
-        }
-        if (controller != null) {
-          controller.animateCamera(CameraUpdate.newCameraPosition(
-              new CameraPosition(
-                  bearing: 192.8334901395799,
-                  target: LatLng(newLocalData.latitude, newLocalData.longitude),
-                  tilt: 0,
-                  zoom: 18.00)));
+            if (widget.OnMyLocationCallback != null) {
+              widget.OnMyLocationCallback(
+                  LatLng(newLocalData.latitude, newLocalData.longitude));
+            }
+            if (controller != null) {
+              controller.animateCamera(CameraUpdate.newCameraPosition(
+                  new CameraPosition(
+                      bearing: 192.8334901395799,
+                      target: LatLng(newLocalData.latitude, newLocalData.longitude),
+                      tilt: 0,
+                      zoom: 18.00)));
 //          updateMarkerAndCircle(newLocalData, imageData);
-        }
-      });
+            }
+          });
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
         debugPrint("Permission Denied");
       }
     }
   }
-  ////
 
   @override
   void dispose() {
@@ -175,37 +164,31 @@ class _googleMapComponentState extends State<googleMapComponent> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: widget.widthMap ?? MediaQuery.of(context).size.width,
-      height: widget.heightMap ?? MediaQuery.of(context).size.height,
       child: Stack(
         children: <Widget>[
           GoogleMap(
-
-            /////secret way to make map possible to move when it is under single child scroll view
+            ////Secret Ingridient to possible scrolling of google map on SingleChildScrollView
             gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
               new Factory<OneSequenceGestureRecognizer>(
                     () => new EagerGestureRecognizer(),
               ),
             ].toSet(),
-            ////
+            ///////
 
-
+            compassEnabled: false,
+            scrollGesturesEnabled: true,
+            zoomGesturesEnabled: true,
+            mapToolbarEnabled: true,
             onMapCreated: onMapCreated,
-
-            ////first ccamera position
             initialCameraPosition: CameraPosition(
-              target: widget.center ?? LatLng(35.728954, 51.388721),
+              target: widget.center ?? LatLng(35.0, 51.0),
               zoom: 11.0,
             ),
-            ////
-
-            minMaxZoomPreference:
-                MinMaxZoomPreference(widget.minZoom ?? 5, widget.maxZoom ?? 20),
+            minMaxZoomPreference: MinMaxZoomPreference(
+                widget.minZoom ?? 1, widget.maxZoom ?? 1000),
             rotateGesturesEnabled: widget.mapRotate ?? false,
             zoomControlsEnabled: widget.enableZoom ?? false,
             mapType: widget.mapType ?? MapType.normal,
@@ -218,6 +201,7 @@ class _googleMapComponentState extends State<googleMapComponent> {
               // pending
             },
           ),
+          /////////////////////MARKER
           Padding(
             padding: EdgeInsets.only(bottom: 55.0),
             child: Center(
@@ -235,47 +219,45 @@ class _googleMapComponentState extends State<googleMapComponent> {
               alignment: Alignment.topRight,
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 35.0),
-                  ////add marker button
-                  FloatingActionButton(
-                    onPressed: () {
-                      _onAddMarkerButtonPressed();
-                    },
-                    materialTapTargetSize: MaterialTapTargetSize.padded,
-                    backgroundColor: Colors.green,
-                    child: const Icon(Icons.add_location, size: 36.0),
-                  ),
-                  ////
-                  SizedBox(
-                    height: 16.0,
-                  ),
-
-                  ////delete button for markers
-                  FloatingActionButton(
-                    onPressed: () {
-                      deleteMarker();
-                    },
-                    materialTapTargetSize: MaterialTapTargetSize.padded,
-                    backgroundColor: Colors.red,
-                    child: Icon(Icons.delete),
-                  ),
-                  SizedBox(
-                    height: 16.0,
-                  ),
-
-                  ////my location button
+                  SizedBox(height: 10.0),
+                  // FloatingActionButton(
+                  //   onPressed: () {
+                  //     _onAddMarkerButtonPressed();
+                  //   },
+                  //   materialTapTargetSize: MaterialTapTargetSize.padded,
+                  //   backgroundColor: Colors.green,
+                  //   child: const Icon(Icons.add_location, size: 36.0),
+                  // ),
+                  // SizedBox(
+                  //   height: 16.0,
+                  // ),
+                  // FloatingActionButton(
+                  //   onPressed: () {
+                  //     deleteMarker();
+                  //   },
+                  //   materialTapTargetSize: MaterialTapTargetSize.padded,
+                  //   backgroundColor: Colors.red,
+                  //   child: Icon(Icons.delete),
+                  // ),
+                  // SizedBox(
+                  //   height: 16.0,
+                  // ),
                   Visibility(
                     visible: widget.myLocation ?? false,
                     maintainState: true,
                     maintainAnimation: true,
                     maintainSize: true,
-                    child: FloatingActionButton(
-                        child: Icon(Icons.location_searching),
-                        onPressed: () {
-                          getCurrentLocation();
-                        }),
+                    child: IconButton(
+                      onPressed: () {
+                        getCurrentLocation();
+                      },
+                      icon: Icon(
+                        Icons.location_searching_outlined,
+                        color: Colors.black,
+                        size: 35.0,
+                      ),
+                    ),
                   ),
-                  ////
                 ],
               ),
             ),
@@ -283,16 +265,17 @@ class _googleMapComponentState extends State<googleMapComponent> {
           // Align(
           //   alignment: Alignment.bottomLeft,
           //   child: Container(
-          //       margin: EdgeInsets.symmetric(vertical: 20.0),
-          //       height: 100,
-          //       child: ListView.builder(
-          //         scrollDirection: Axis.horizontal,
-          //         itemCount: markerList.length,
-          //         padding: EdgeInsets.symmetric(horizontal: 20),
-          //         itemBuilder: (BuildContext, int index) {
-          //           return _boxes(index);
-          //         },
-          //       )),
+          //     margin: EdgeInsets.symmetric(vertical: 20.0),
+          //     height: 100,
+          //     child: ListView.builder(
+          //       scrollDirection: Axis.horizontal,
+          //       itemCount: markerList.length,
+          //       padding: EdgeInsets.symmetric(horizontal: 20),
+          //       itemBuilder: (BuildContext, int index) {
+          //         return _boxes(index);
+          //       },
+          //     ),
+          //   ),
           // ),
         ],
       ),
@@ -361,12 +344,12 @@ Widget myDetailsContainer1(String restaurantName) {
         padding: EdgeInsets.all(50),
         child: Container(
             child: Text(
-          restaurantName,
-          style: TextStyle(
-              color: Color(0xff6200ee),
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold),
-        )),
+              restaurantName,
+              style: TextStyle(
+                  color: Color(0xff6200ee),
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold),
+            )),
       ),
     ],
   );

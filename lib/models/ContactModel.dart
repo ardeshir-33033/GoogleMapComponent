@@ -1,4 +1,3 @@
-
 class ContactTypeVM {
   String value;
   String id;

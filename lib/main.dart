@@ -16,7 +16,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: googleMapComponent(),
+        body: googleMapComponent(myLocation: true,),
 //        googleMapModel(myLocation: true,),
       ),
     );

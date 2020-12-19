@@ -11,19 +11,5 @@ class MarkerModel {
 }
 
 List<MarkerModel> markerList = [
-  MarkerModel(
-      name: 'hello',
-      url:
-          "https://lh5.googleusercontent.com/p/AF1QipO3VPL9m-b355xWeg4MXmOQTauFAEkavSluTtJU=w225-h160-k-no",
-      place: LatLng(40.738380, -73.988426)),
-  MarkerModel(
-      name: 'there',
-      url:
-          "https://lh5.googleusercontent.com/p/AF1QipO3VPL9m-b355xWeg4MXmOQTauFAEkavSluTtJU=w225-h160-k-no",
-      place: LatLng(40.768380, -73.958426)),
-  MarkerModel(
-      name: 'here',
-      url:
-          "https://lh5.googleusercontent.com/p/AF1QipO3VPL9m-b355xWeg4MXmOQTauFAEkavSluTtJU=w225-h160-k-no",
-      place: LatLng(40.798380, -73.988926))
+
 ];
